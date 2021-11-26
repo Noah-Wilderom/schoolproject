@@ -105,6 +105,69 @@ class Students {
         $this->conn->query("SELECT * FROM students WHERE $studentid = :studentid");
     }
 
-    
+    public function saveInstellingen($img = NULL, $wachtwoord = NULL, $telefoonnummer = NULL) {
+        if(!isset($_SESSION['student_id'])) return false; 
+        $i = 0;
+
+        if(!is_null($img) && !empty($img['file_name'])) {
+            // Check of alles succesvol is uitgevoerd
+            $i++;
+            $img = $img['file_name'] . '.' . $img['file_extension'];
+            $this->conn->query('UPDATE students SET img=:img WHERE student_id = :studentid');
+            $this->conn->bind(":studentid", $_SESSION['student_id']);
+            $this->conn->bind(":img", $img);
+            // Als het geupdate is word er weer vanaf getrokken om weer terug bij 0 te zijn
+            if($this->conn->execute()) $i--;
+        }
+
+        if(!is_null($wachtwoord) && !empty($wachtwoord)) {
+            $wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
+            // Check of alles succesvol is uitgevoerd
+            $i++;
+            $this->conn->query('UPDATE students SET wachtwoord=:wachtwoord WHERE student_id = :studentid');
+            $this->conn->bind(":studentid", $_SESSION['student_id']);
+            $this->conn->bind(":wachtwoord", $wachtwoord);
+            // Als het geupdate is word er weer vanaf getrokken om weer terug bij 0 te zijn
+            if($this->conn->execute()) $i--;
+        }
+
+        if(!is_null($telefoonnummer) && !empty($telefoonnummer)) {
+            // Check of alles succesvol is uitgevoerd
+            $i++;
+            $this->conn->query('UPDATE students SET telefoonnummer=:telefoonnummer WHERE student_id = :studentid');
+            $this->conn->bind(":studentid", $_SESSION['student_id']);
+            $this->conn->bind(":telefoonnummer", $telefoonnummer);
+            // Als het geupdate is word er weer vanaf getrokken om weer terug bij 0 te zijn
+            if($this->conn->execute()) $i--;
+        }
+
+        // Check hier of alles geweest is
+        if($i == 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
+
+    public function checkWachtwoord($wachtwoord) {
+        if(!isset($_SESSION['student_id'])) return false;
+        $this->conn->query("SELECT wachtwoord FROM students WHERE student_id = :studentid");
+        $this->conn->bind(":studentid", $_SESSION['student_id']);
+        $result = $this->conn->single();
+        if(password_verify($wachtwoord, $result['wachtwoord'])) return true;
+    }
+
+    /**
+     * Krijg data van students table in db
+     * 
+     * @param $info Kies uit email, img, voornaam, achternaam, wachtwoord (hash), dob, telefoonnummer, geslacht, opleiding, klas, opleiding_type (categorie), is_verified
+     */
+    public function getStudentInfo($info, $studentid = NULL) {
+        if(!is_null(['studentid'])) {
+
+        }
+    }
     
 }

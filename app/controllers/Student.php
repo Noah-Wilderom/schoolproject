@@ -11,6 +11,7 @@
     public function __construct() {
         $this->studentModel = $this->model('Students');
         $this->helper = $this->helpers('Helpers');
+        $this->file = $this->helpers('File');
     }
 
     public function login() {
@@ -68,7 +69,53 @@
         $this->view('student/overzicht');
     }
     public function instellingen() {
-        $this->view('student/instellingen');
+        
+        $data = [
+            'file_directory' => '',
+            'file_extension' => '',
+            'file_size' => '',  
+            'file_name' => '',  
+            'file_error' => '',  
+        ];
+        if(isset($_POST['submit'])) {
+            if(empty($_POST['wachtwoord'])) {
+                if(!$this->studentModel->checkWachtwoord($_POST['wachtwoord'])) return false;
+            }
+            if(!empty($_FILES['upload'])) {
+                $f = $_FILES['upload'];
+                $this->file->setFile($f)->setMaxSize(10)
+                ->setDirectory("uploads");
+    
+                if($this->file->getExtension() == 'jpg' || $this->file->getExtension() == 'jpeg' || $this->file->getExtension() == 'png') {
+                    $this->file->uploadFile();
+                    $data = [
+                        'file_directory' => $this->file->getDir(),
+                        'file_extension' => $this->file->getExtension(),
+                        'file_size' => $this->file->getSize(),  
+                        'file_name' => $this->file->getName(),  
+                        'file_error' => $this->file->showError()
+                    ];
+                } else {
+                    $data = [
+                        'file_directory' => '',
+                        'file_extension' => '',
+                        'file_size' => '',  
+                        'file_name' => '',  
+                        'file_error' => 'Alleen jpg, jpeg en png fotos zijn toegestaan'
+                    ];
+                }
+            }
+
+            if($this->studentModel->saveInstellingen($data)) {
+                Notification::showNotification("Uw instellingen zijn succesvol opgeslagen");
+            } else {
+                Notification::showNotification("Uw instellingen zijn helaas niet opgeslagen check of uw alles goed hebt ingevuld");
+            }
+            
+            
+        }
+
+        $this->view('student/instellingen', $data);
     }
 
     
