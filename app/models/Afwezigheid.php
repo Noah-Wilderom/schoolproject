@@ -17,7 +17,7 @@ class Afwezigheid {
     }
 
     public function getAantalLessenGemist($vanaf, $tot, $klas) {
-        $this->conn->query("SELECT * FROM rooster WHERE (datum BETWEEN :vanaf AND :tot) AND klas = :klas");
+        $this->conn->query("SELECT * FROM rooster WHERE vanaf = :vanaf AND tot= :tot AND klas = :klas");
         $this->conn->bind(":vanaf", $vanaf);
         $this->conn->bind(":tot", $tot);
         $this->conn->bind(":klas", $klas);

@@ -6,6 +6,7 @@ class Students {
     public function __construct() {
         $this->conn = new Database;
         $this->helper = new Helpers();
+        $this->studentHelper = new StudentHelper();
     }
 
     /**
@@ -99,12 +100,6 @@ class Students {
         }
     }
 
-    public function getInfoStudent(array $info, $studentid) {
-        if(!is_array($info) || !is_int($studentid)) return false;
-
-        $this->conn->query("SELECT * FROM students WHERE $studentid = :studentid");
-    }
-
     public function saveInstellingen($img = NULL, $wachtwoord = NULL, $telefoonnummer = NULL) {
         if(!isset($_SESSION['student_id'])) return false; 
         $i = 0;
@@ -120,7 +115,7 @@ class Students {
             if($this->conn->execute()) $i--;
         }
 
-        if(!is_null($wachtwoord) && !empty($wachtwoord)) {
+        if(!is_null($wachtwoord) && !empty($wachtwoord['wachtwoord_nieuw'])) {
             $wachtwoord = password_hash($wachtwoord, PASSWORD_DEFAULT);
             // Check of alles succesvol is uitgevoerd
             $i++;
@@ -131,7 +126,7 @@ class Students {
             if($this->conn->execute()) $i--;
         }
 
-        if(!is_null($telefoonnummer) && !empty($telefoonnummer)) {
+        if(!is_null($telefoonnummer) && !empty($telefoonnummer['telefoonnummer_nieuw'])) {
             // Check of alles succesvol is uitgevoerd
             $i++;
             $this->conn->query('UPDATE students SET telefoonnummer=:telefoonnummer WHERE student_id = :studentid');
@@ -162,12 +157,55 @@ class Students {
     /**
      * Krijg data van students table in db
      * 
-     * @param $info Kies uit email, img, voornaam, achternaam, wachtwoord (hash), dob, telefoonnummer, geslacht, opleiding, klas, opleiding_type (categorie), is_verified
+     * @param string $info Kies uit email, img, voornaam, achternaam, wachtwoord (hash), dob, telefoonnummer, geslacht, opleiding, klas, opleiding_type (categorie), is_verified
+     * 
+     * @return mixed Als het goed gegaan is dan return $result[@param $info], als er een error is dan return false
      */
-    public function getStudentInfo($info, $studentid = NULL) {
-        if(!is_null(['studentid'])) {
-
+    public function getStudentInfo(string $info, $studentid = NULL) {
+        if(!isset($_SESSION)) {
+            session_start();
         }
+        if(is_null($studentid)) {
+            if(isset($_SESSION['student_id'])) {
+                $studentid = $_SESSION['student_id'];
+            } else {
+                return false;
+            }
+        }
+
+        $this->conn->query("SELECT * FROM students WHERE student_id = :studentid");
+        $this->conn->bind(":studentid", $studentid);
+        $result = $this->conn->single();
+        $return = $result->$info;
+        return $return;
+    }
+
+
+    public function getLessen($data, $klas = NULL) {
+        if(!isset($_SESSION)) {
+            session_start();
+        }
+        $return = [];
+        if(is_null($klas)) $klas = $_SESSION['student_klas'];
+
+        $this->conn->query("SELECT * FROM rooster WHERE klas = :klas");
+        $this->conn->bind(":klas", $klas);
+        $results = $this->conn->resultSet();
+        $i = 0;
+        foreach($data[0] as $date) {
+            foreach($results as $result) {
+                $resultVanaf = explode("-", $result->vanaf);
+                $resultTot = explode("-", $result->tot);
+                $resultVanaf[2] = explode(" ", $resultVanaf[2]);
+                $resultTot[2] = explode(" ", $resultTot[2]);
+                if($date[$i]['day'] <= $resultVanaf[2][0] && $date[$i]['month'] <= $resultVanaf[1] && $date[$i]['year'] <= $resultVanaf[0]
+                && $date[$i]['day'] <= $resultTot[2][0] && $date[$i]['month'] <= $resultTot[1] && $date[$i]['year'] <= $resultTot[0]
+                ) {
+                    array_push($return, $result);
+                }
+            }
+        }
+        return $return;
     }
     
 }

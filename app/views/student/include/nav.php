@@ -1,21 +1,26 @@
 <?php
-session_start();
+if(!isset($_SESSION)) {
+  session_start();
+}
 ?>
+<script src="<?php echo URLROOT; ?>/public/js/script.js"></script>
+
 <body>
 		
 		<div class="wrapper d-flex align-items-stretch">
 			<nav id="sidebar">
 				<div class="custom-menu">
-					<button type="button" id="sidebarCollapse" class="btn btn-primary">
+					<button type="button" id="sidebarCollapse" class="btn btn-primary" onclick="mobileClass.toggleNav()">
 	          <i class="fa fa-bars"></i>
 	          <span class="sr-only">Toggle Menu</span>
 	        </button>
         </div>
 	  		<h1><a href="index.html" class="logo"><?php echo WEBSITENAAM; ?></a></h1>
         <div style="display: inline-flex; width: 100px;">
-          <img style="border-radius: 50%; max-width: 50px; max-height: auto; margin: auto 15px;" src="<?php echo URLROOT; ?>/public/uploads/<?php if(isset($_SESSION['student_img'])) { echo $_SESSION['student_img']; } else { echo "default.png"; }?>">
+          <img style="border-radius: 50%; min-width: 50px; min-height: 50px;max-width: 50px; max-height: auto; margin: auto 15px;" src="<?php echo URLROOT; ?>/public/uploads/<?php if(isset($_SESSION['student_img'])) { echo $_SESSION['student_img']; } else { echo "default.png"; }?>">
           <p style="color: #FFFFFF; margin: auto 15px;"><?php if(isset($_SESSION)) { echo $_SESSION['student_voornaam'] . " " . $_SESSION['student_achternaam']; } ?></p>
         </div>
+        <p style="margin: auto 95px;"><?php if(isset($_SESSION)) echo $_SESSION['student_klas']?></p>
         <ul class="list-unstyled components mb-5">
           <li class="<?php if(Helpers::getUrl()[1] == 'home') { ?> active <?php } ?>" >
             <a href="<?php echo URLROOT; ?>/student/home"><span class="fa fa-home mr-3"></span> Home</a>

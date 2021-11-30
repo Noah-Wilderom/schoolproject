@@ -42,5 +42,27 @@ class StudentHelper {
         }
     }
 
+    public function getDates($aantal = 7) {
+        $data = [];
+        for($i = 0; $i <= $aantal; $i++) {
+            $dag = date('d');
+            $maand = date('m');
+            $jaar = date('Y');
+            $days_in_month = cal_days_in_month(CAL_GREGORIAN, $maand, $jaar);
+            if(($dag + $i) > $days_in_month) {
+                $dag = ($dag + $i) - $days_in_month;
+                if($maand != 12) {
+                    $maand++;
+                } else {
+                    $maand = 1;
+                    $jaar++;
+                }
+            }
+
+            array_push($data, array(cal_from_jd(unixtojd(mktime(0, 0, 0, $maand, $dag, $jaar)), CAL_GREGORIAN)));
+        }
+        return $data;
+    }
+
     
 }

@@ -74,7 +74,7 @@ class File {
 
     public function getName() {
         if(empty($this->name)) {
-            $this->name = date("YmdHis");
+            $this->name = date("YmdHi");
         }
         $this->fc = $this->getDir() . DIRECTORY_SEPARATOR . $this->name . "." . $this->getExtension();
         // Checkt of de naam van het bestand al bestaat

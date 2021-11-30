@@ -8,7 +8,7 @@ define('DB_NAME', 'schoolproject');
 // App ROOT
 define('APPROOT', dirname(dirname(__FILE__)));
 // URL ROOT (Dynamische link)
-define('URLROOT', 'http://localhost/schoolproject');
+define('URLROOT', 'http://192.168.2.17/schoolproject');
 // Website naam;
 define('WEBSITENAAM', 'School project');
 

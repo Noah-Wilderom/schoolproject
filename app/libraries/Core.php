@@ -5,8 +5,8 @@
  * @author Noah Wilderom
  */
     Class Core {
-        protected $currentController = 'Home';
-        protected $currentMethod = 'index';
+        protected $currentController = 'Student';
+        protected $currentMethod = 'login';
         protected $params = [];
 
         // In de construct word de URL behandeld (Voorbeeld URL: MVCphp/shop/tshirt/mannen)

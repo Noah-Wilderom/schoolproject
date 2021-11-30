@@ -18,4 +18,4 @@ require_once 'helpers/Notification.class.php';
 // Laad de Core class in
 
 $init = new Core;
-if(!isset($_SESSION)) session_start();
+// if(!isset($_SESSION)) session_start();

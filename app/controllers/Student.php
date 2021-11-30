@@ -10,13 +10,14 @@
 
     public function __construct() {
         $this->studentModel = $this->model('Students');
+        $this->studentHelper = $this->helpers('StudentHelper');
         $this->helper = $this->helpers('Helpers');
         $this->file = $this->helpers('File');
     }
 
     public function login() {
         if($_SERVER['REQUEST_METHOD'] == 'POST') {
-            session_start();
+            if(!isset($_SESSION)) session_start();
             $this->studentModel->loginStudent($_POST['email'], $_POST['wachtwoord']);
         }
         $this->view('student/auth/login');
@@ -53,8 +54,10 @@
     }
 
     public function agenda() {
-
-        $this->view('student/agenda');
+        $data = [];
+        array_push($data, $this->studentHelper->getDates());
+        array_push($data, $this->studentModel->getLessen($data));
+        $this->view('student/agenda', $data);
     }
 
     public function resultaten() {
@@ -75,33 +78,72 @@
             'file_extension' => '',
             'file_size' => '',  
             'file_name' => '',  
-            'file_error' => '',  
+            'file_error' => '',
+            'telefoonnummer_huidig' => $this->studentModel->getStudentInfo("telefoonnummer"),
+            'img_huidig' => $this->studentModel->getStudentInfo("img"),
+            'telefoonnummer_nieuw' => '',
+            'wachtwoord_nieuw' => ''
         ];
+
         if(isset($_POST['submit'])) {
             if(empty($_POST['wachtwoord'])) {
                 if(!$this->studentModel->checkWachtwoord($_POST['wachtwoord'])) return false;
+                $data = [
+                    'file_directory' => '',
+                    'file_extension' => '',
+                    'file_size' => '',  
+                    'file_name' => '',  
+                    'file_error' => '',
+                    'telefoonnummer_huidig' => $this->studentModel->getStudentInfo("telefoonnummer"),
+                    'img_huidig' => $this->studentModel->getStudentInfo("img"),
+                    'telefoonnummer_nieuw' => '',
+                    'img_nieuw' => ''
+                ];
             }
             if(!empty($_FILES['upload'])) {
                 $f = $_FILES['upload'];
                 $this->file->setFile($f)->setMaxSize(10)
                 ->setDirectory("uploads");
     
-                if($this->file->getExtension() == 'jpg' || $this->file->getExtension() == 'jpeg' || $this->file->getExtension() == 'png') {
-                    $this->file->uploadFile();
+                if($this->file->getExtension() == 'jpg' || $this->file->getExtension() == 'jpeg' || $this->file->getExtension() == 'png') {                   
                     $data = [
                         'file_directory' => $this->file->getDir(),
                         'file_extension' => $this->file->getExtension(),
                         'file_size' => $this->file->getSize(),  
                         'file_name' => $this->file->getName(),  
-                        'file_error' => $this->file->showError()
+                        'file_error' => $this->file->showError(),
+                        'telefoonnummer_huidig' => $this->studentModel->getStudentInfo("telefoonnummer"),
+                        'img_huidig' => $this->studentModel->getStudentInfo("img"),
+                        'telefoonnummer_nieuw' => $_POST['telefoonnummer'],
+                        'wachtwoord_nieuw' => $_POST['update-wachtwoord']
                     ];
+                    if($this->file->uploadFile()) {
+                        $_SESSION['student_img'] = $data['file_name'] . "." . $data['file_extension'];
+                    } else {
+                        $data = [
+                            'file_directory' => '',
+                            'file_extension' => '',
+                            'file_size' => '',  
+                            'file_name' => '',  
+                            'file_error' => $this->file->showError(),
+                            'telefoonnummer_huidig' => '',
+                            'img_huidig' => '',
+                            'telefoonnummer_nieuw' => '',
+                            'wachtwoord_nieuw' => ''
+                        ];
+                    }
+                    
                 } else {
                     $data = [
                         'file_directory' => '',
                         'file_extension' => '',
                         'file_size' => '',  
                         'file_name' => '',  
-                        'file_error' => 'Alleen jpg, jpeg en png fotos zijn toegestaan'
+                        'file_error' => 'Alleen jpg, jpeg en png fotos zijn toegestaan',
+                        'telefoonnummer_huidig' => '',
+                        'img_huidig' => '',
+                        'telefoonnummer_nieuw' => '',
+                        'wachtwoord_nieuw' => ''
                     ];
                 }
             }
