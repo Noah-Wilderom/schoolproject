@@ -15,7 +15,7 @@ define('WEBSITENAAM', 'School project');
 // Email
 define("MAIL_HOST", "smtp.mailtrap.io");
 define("MAIL_USERNAME", "d24be9f40a02c8");
-define("MAIL_PASSWORD", "92e4281d41b96b");
+define("MAIL_PASSWORD", "");
 define("EMAIL", "wilderomnoah@gmail.com");
 
 
